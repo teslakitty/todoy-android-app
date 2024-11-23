@@ -5,36 +5,52 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
+import android.widget.Button
+import android.webkit.CookieManager
+import android.webkit.WebStorage
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var webView: WebView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Get the WebView and configure settings
-        val webView = findViewById<WebView>(R.id.todoyweb)
+        // Initialize the WebView
+        webView = findViewById(R.id.todoyweb)
+        configureWebView(webView)
 
-        // Set WebViewClient to ensure links open inside the WebView
+        // Set up the reset button
+        val resetButton = findViewById<Button>(R.id.resetButton)
+        resetButton.setOnClickListener {
+            resetWebView()
+        }
+    }
+
+    private fun configureWebView(webView: WebView) {
         webView.webViewClient = WebViewClient()
-
-        // Enable JavaScript (required for interactive sites)
         webView.settings.javaScriptEnabled = true
-
-        // Enable DOM storage and caching for offline use
         webView.settings.domStorageEnabled = true
         webView.settings.cacheMode = WebSettings.LOAD_DEFAULT
-
-        // Load the desired URL
         webView.loadUrl("https://todoy1.netlify.app")
     }
 
-    // Override onBackPressed to navigate within the WebView if possible
+    private fun resetWebView() {
+        // Clear WebView data
+        webView.clearCache(true)
+        webView.clearHistory()
+        CookieManager.getInstance().removeAllCookies(null)
+        WebStorage.getInstance().deleteAllData()
+
+        // Reload the initial URL
+        webView.loadUrl("https://todoy1.netlify.app")
+    }
+
     override fun onBackPressed() {
-        val webView = findViewById<WebView>(R.id.todoyweb)
         if (webView.canGoBack()) {
-            webView.goBack() // Navigate back within WebView
+            webView.goBack()
         } else {
-            super.onBackPressed() // If cannot go back, let the system handle the back press
+            super.onBackPressed()
         }
     }
 }
